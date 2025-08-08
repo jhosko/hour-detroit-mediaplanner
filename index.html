@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Hour Detroit — Media Plan Builder (Prototype)</title>
+    <title>Hour Detroit — Media Plan Builder (V2 Prototype)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -12,7 +12,6 @@
   </head>
   <body class="bg-gray-50">
     <div id="root"></div>
-
     <script type="text/babel" data-presets="env,react">
       const { useMemo, useState, useRef } = React;
 
@@ -37,6 +36,7 @@
         return item.price || 0;
       };
 
+      // --- Offerings ---
       const printStandard = [
         { id: "print_spread", category: "Print — Standard", name: "Spread", unitLabel: "Insertions", min: 1, max: 12, step: 1, reach: 194000, notes: "Two facing pages.", rateTiers: { "1x": 12300, "3x": 11640, "6x": 11000, "9x": 10350, "12x": 10075 } },
         { id: "print_full", category: "Print — Standard", name: "Full Page", unitLabel: "Insertions", min: 1, max: 12, step: 1, reach: 194000, notes: "Bleed included.", rateTiers: { "1x": 6485, "3x": 6175, "6x": 5865, "9x": 5435, "12x": 5230 } },
@@ -54,89 +54,91 @@
         { id: "group_half", category: "Print — Group Sections", name: "Group Sections — Half Page", unitLabel: "Insertions", min: 1, max: 12, step: 1, reach: 194000, notes: "Grouped advertorial sections.", rateTiers: { "1x": 3670, "3x": 3250, "6x": 2830, "9x": 2410, "12x": 1990 } },
         { id: "group_quarter", category: "Print — Group Sections", name: "Group Sections — Quarter Page", unitLabel: "Insertions", min: 1, max: 12, step: 1, reach: 194000, notes: "Grouped advertorial sections.", rateTiers: { "1x": 2055, "3x": 1790, "6x": 1525, "9x": 1260, "12x": 995 } },
       ];
+
       const digital = [
-        { id: "digital_partner", category: "Digital", name: "Digital Partnership (Monthly)", unitLabel: "Months", price: 2995, min: 0, max: 12, step: 1, reach: 320000, notes: "Bundle: logo on all pages, 100k min impressions/mo, 12 e-newsletter 300x250/mo, 1 dedicated e-blast/quarter, 1 sponsored social/mo. 3-month minimum recommended." },
-        { id: "digital_directory", category: "Digital", name: "Premium Directory Profile", unitLabel: "Years", price: 1495, min: 0, max: 3, step: 1, reach: 0, notes: "Annual." },
-        { id: "email_presenting", category: "Digital", name: "E-Newsletter Presenting Sponsorship (Weekly)", unitLabel: "Weeks", price: 575, min: 0, max: 52, step: 1, reach: 30000, notes: "Weekly placement." },
-        { id: "spon_content", category: "Digital", name: "Sponsored Content Article (+ Social)", unitLabel: "Articles", price: 1995, min: 0, max: 20, step: 1, reach: 0, notes: "Includes social promotion." },
+        { id: "digital_partner", category: "Digital", name: "Digital Partnership (Monthly)", unitLabel: "Months", price: 2995, min: 0, max: 12, step: 1, reach: 320000, notes: "Logo on all pages, min 100k impressions/mo, e-newsletter 300x250 (12/mo), 1 e-blast/quarter, 1 sponsored social/mo. 3-month recommended." },
+        { id: "digital_directory", category: "Digital", name: "Premium Directory Profile", unitLabel: "Years", price: 1495, min: 0, max: 3, step: 1, reach: 0, notes: "Annual profile." },
+        { id: "email_presenting", category: "Digital", name: "E-Newsletter Presenting Sponsorship (Weekly)", unitLabel: "Weeks", price: 575, min: 0, max: 52, step: 1, reach: 30000, notes: "Top placement; 30k+ subs." },
+        { id: "spon_content", category: "Digital", name: "Sponsored Content Article (+ Social)", unitLabel: "Articles", price: 1995, min: 0, max: 20, step: 1, reach: 0, notes: "Article on HourDetroit.com + social." },
         { id: "social_post", category: "Digital", name: "Sponsored Social Media Post", unitLabel: "Posts", price: 800, min: 0, max: 20, step: 1, reach: 286000, notes: "Posted to Hour Detroit channels." },
-        { id: "digital_edition_sponsor", category: "Digital", name: "Digital Edition Sponsorship", unitLabel: "Issues", price: 1500, min: 0, max: 12, step: 1, reach: 3000, notes: "Per issue." },
-        { id: "dedicated_eblast_full", category: "Digital", name: "Dedicated Partner Message E-Blast — Full List (30,000+)", unitLabel: "Sends", price: 1995, min: 0, max: 12, step: 1, reach: 30000, notes: "First-party list." },
-        { id: "dedicated_eblast_food", category: "Digital", name: "Dedicated E-Blast — Food & Drink Segment (9,000+)", unitLabel: "Sends", price: 995, min: 0, max: 12, step: 1, reach: 9000, notes: "Segmented list." },
-        { id: "dedicated_eblast_travel", category: "Digital", name: "Dedicated E-Blast — Travel Segment (9,000+)", unitLabel: "Sends", price: 995, min: 0, max: 12, step: 1, reach: 9000, notes: "Segmented list." },
-        { id: "dedicated_eblast_health", category: "Digital", name: "Dedicated E-Blast — Health & Fitness (4,000+)", unitLabel: "Sends", price: 895, min: 0, max: 12, step: 1, reach: 4000, notes: "Segmented list." },
-        { id: "thirdparty_email", category: "Digital", name: "Targeted Email (3rd Party) — 50,000", unitLabel: "Blasts", price: 1250, min: 0, max: 20, step: 1, reach: 50000, notes: "Third-party deployment; add-on remarketing $600/campaign; redrop $500." },
+        { id: "digital_edition_sponsor", category: "Digital", name: "Digital Edition Sponsorship", unitLabel: "Issues", price: 1500, min: 0, max: 12, step: 1, reach: 3000, notes: "Per-issue sponsorship." },
+        { id: "dedicated_eblast_full", category: "Digital", name: "Dedicated Partner Message E-Blast — Full List (30,000+)", unitLabel: "Sends", price: 1995, min: 0, max: 12, step: 1, reach: 30000, notes: "First-party list blast." },
+        { id: "dedicated_eblast_food", category: "Digital", name: "Dedicated E-Blast — Food & Drink (9,000+)", unitLabel: "Sends", price: 995, min: 0, max: 12, step: 1, reach: 9000, notes: "Segmented interest list." },
+        { id: "dedicated_eblast_travel", category: "Digital", name: "Dedicated E-Blast — Travel (9,000+)", unitLabel: "Sends", price: 995, min: 0, max: 12, step: 1, reach: 9000, notes: "Segmented interest list." },
+        { id: "dedicated_eblast_health", category: "Digital", name: "Dedicated E-Blast — Health & Fitness (4,000+)", unitLabel: "Sends", price: 895, min: 0, max: 12, step: 1, reach: 4000, notes: "Segmented interest list." },
+        { id: "thirdparty_email", category: "Digital", name: "Targeted Email (3rd Party) — 50,000", unitLabel: "Blasts", price: 1250, min: 0, max: 20, step: 1, reach: 50000, notes: "3rd-party deployment; redrop $500; remarketing $600." },
         { id: "thirdparty_redrop", category: "Digital", name: "Targeted Email Redrop (3rd Party)", unitLabel: "Redrops", price: 500, min: 0, max: 20, step: 1, reach: 0, notes: "Follow-up send." },
-        { id: "remarketing", category: "Digital", name: "Remarketing (3rd Party)", unitLabel: "Campaigns", price: 600, min: 0, max: 20, step: 1, reach: 0, notes: "Per campaign." },
+        { id: "remarketing", category: "Digital", name: "Remarketing (3rd Party)", unitLabel: "Campaigns", price: 600, min: 0, max: 20, step: 1, reach: 0, notes: "Add-on remarketing." },
         { id: "local_minute_video", category: "Digital", name: "Local Minute Video", unitLabel: "Videos", price: 9500, min: 0, max: 10, step: 1, reach: 0, notes: "Video content package." },
         { id: "live_link", category: "Digital", name: "Digital Edition Live Link", unitLabel: "Links", price: 100, min: 0, max: 50, step: 1, reach: 0, notes: "Clickable link in digital edition." },
-        { id: "lower_takeover", category: "Digital", name: "High Impact Lower Takeover (Weekly)", unitLabel: "Weeks", price: 750, min: 0, max: 52, step: 1, reach: 0, notes: "Site takeover placement." },
+        { id: "lower_takeover", category: "Digital", name: "High Impact Lower Takeover (Weekly)", unitLabel: "Weeks", price: 750, min: 0, max: 52, step: 1, reach: 0, notes: "High-impact site unit." },
       ];
+
+      // Event level groups (mutually exclusive)
       const events = [
-        { id: "bod_presenting", category: "Events — June (Best of Detroit)", name: "Best of Detroit — Presenting", unitLabel: "Sponsorships", price: 25000, min: 0, max: 1, step: 1, reach: 0, notes: "June 26, 2025 — Westin Book Cadillac, Detroit." },
-        { id: "bod_major", category: "Events — June (Best of Detroit)", name: "Best of Detroit — Major", unitLabel: "Sponsorships", price: 10000, min: 0, max: 10, step: 1, reach: 0, notes: "June 26, 2025 — Westin Book Cadillac, Detroit." },
-        { id: "bod_gold", category: "Events — June (Best of Detroit)", name: "Best of Detroit — Gold", unitLabel: "Sponsorships", price: 5000, min: 0, max: 20, step: 1, reach: 0, notes: "June 26, 2025 — Westin Book Cadillac, Detroit." },
-        { id: "bod_lounge", category: "Events — June (Best of Detroit)", name: "Best of Detroit — Branded Lounge", unitLabel: "Lounge", price: 1500, min: 0, max: 10, step: 1, reach: 0, notes: "June 26, 2025 — Westin Book Cadillac, Detroit." },
-        { id: "bod_automotive", category: "Events — June (Best of Detroit)", name: "Best of Detroit — Automotive", unitLabel: "Sponsorships", price: 10000, min: 0, max: 5, step: 1, reach: 0, notes: "Automotive category." },
-        { id: "bod_redcarpet", category: "Events — June (Best of Detroit)", name: "Best of Detroit — Red Carpet", unitLabel: "Sponsorships", price: 10000, min: 0, max: 3, step: 1, reach: 0, notes: "Red carpet activation." },
-        { id: "bod_beverage", category: "Events — June (Best of Detroit)", name: "Best of Detroit — Beverage", unitLabel: "Sponsorships", price: 3000, min: 0, max: 10, step: 1, reach: 0, notes: "Category exclusivity by beverage type." },
-        { id: "bod_mainstage", category: "Events — June (Best of Detroit)", name: "Best of Detroit — Main Stage", unitLabel: "Sponsorships", price: 10000, min: 0, max: 2, step: 1, reach: 0, notes: "Stage branding." },
-        { id: "bod_viplounge", category: "Events — June (Best of Detroit)", name: "Best of Detroit — Speak Easy/VIP Lounge", unitLabel: "Sponsorships", price: 10000, min: 0, max: 2, step: 1, reach: 0, notes: "VIP area branding." },
+        // Best of Detroit
+        { id: "bod_presenting", eventGroup: "Best of Detroit", category: "Events — June (Best of Detroit)", name: "Presenting", unitLabel: "Sponsorship", price: 25000, min: 0, max: 1, step: 1, reach: 0, blurb: "Top billing; logo on all materials; premium on-site activation; 8 VIPs." },
+        { id: "bod_major", eventGroup: "Best of Detroit", category: "Events — June (Best of Detroit)", name: "Major", unitLabel: "Sponsorship", price: 10000, min: 0, max: 1, step: 1, reach: 0, blurb: "Logo on print/web/social; on‑site activation; 4 VIPs." },
+        { id: "bod_gold", eventGroup: "Best of Detroit", category: "Events — June (Best of Detroit)", name: "Gold", unitLabel: "Sponsorship", price: 5000, min: 0, max: 1, step: 1, reach: 0, blurb: "Logo on signage; on‑site display; 4 VIPs." },
+        { id: "bod_lounge", eventGroup: "Best of Detroit", category: "Events — June (Best of Detroit)", name: "Branded Lounge", unitLabel: "Activation", price: 1500, min: 0, max: 1, step: 1, reach: 0, blurb: "Branded 8’ table/lounge space; logo on signage; 4 VIPs." },
 
-        { id: "gf_competitor", category: "Events — August (GrillFest)", name: "GrillFest — Best Bite Competitor Entry", unitLabel: "Entries", price: 1195, min: 0, max: 3, step: 1, reach: 0, notes: "Aug 17, 2025 — Eastern Market Shed 5, Detroit." },
-        { id: "gf_bev_table", category: "Events — August (GrillFest)", name: "GrillFest — Beverage Tasting Table", unitLabel: "Tables", price: 795, min: 0, max: 10, step: 1, reach: 0, notes: "10x10 with TIPS bartender." },
-        { id: "gf_presenting", category: "Events — August (GrillFest)", name: "GrillFest — Presenting", unitLabel: "Sponsorships", price: 20000, min: 0, max: 1, step: 1, reach: 0, notes: "Eastern Market Shed 5." },
-        { id: "gf_major", category: "Events — August (GrillFest)", name: "GrillFest — Major", unitLabel: "Sponsorships", price: 7500, min: 0, max: 5, step: 1, reach: 0, notes: "Eastern Market Shed 5." },
-        { id: "gf_beverage", category: "Events — August (GrillFest)", name: "GrillFest — Beverage Sponsor", unitLabel: "Sponsorships", price: 2500, min: 0, max: 10, step: 1, reach: 0, notes: "Beverage sponsor benefits." },
-        { id: "gf_gold", category: "Events — August (GrillFest)", name: "GrillFest — Gold", unitLabel: "Sponsorships", price: 5000, min: 0, max: 10, step: 1, reach: 0, notes: "On-site activation + logo on signage." },
-        { id: "gf_bestbite_sponsor", category: "Events — August (GrillFest)", name: "GrillFest — Best Bite Competition Sponsor", unitLabel: "Sponsorships", price: 15000, min: 0, max: 1, step: 1, reach: 0, notes: "Title sponsor of voting platform." },
-        { id: "gf_cornhole", category: "Events — August (GrillFest)", name: "GrillFest — Cornhole Sponsor", unitLabel: "Sponsorships", price: 10000, min: 0, max: 1, step: 1, reach: 0, notes: "Logo on boards." },
-        { id: "gf_swbag", category: "Events — August (GrillFest)", name: "GrillFest — VIP Swag Bag Sponsor", unitLabel: "Sponsorships", price: 10000, min: 0, max: 1, step: 1, reach: 0, notes: "Logo on 200 bags." },
-        { id: "gf_kidzone", category: "Events — August (GrillFest)", name: "GrillFest — Kid Zone Sponsor", unitLabel: "Sponsorships", price: 10000, min: 0, max: 1, step: 1, reach: 0, notes: "Bounce house, face painting." },
-        { id: "gf_vehicle", category: "Events — August (GrillFest)", name: "GrillFest — Vehicle Sponsor", unitLabel: "Sponsorships", price: 10000, min: 0, max: 1, step: 1, reach: 0, notes: "Up to four vehicles." },
-        { id: "gf_sunglasses", category: "Events — August (GrillFest)", name: "GrillFest — Sunglasses Sponsor", unitLabel: "Sponsorships", price: 10000, min: 0, max: 1, step: 1, reach: 0, notes: "500 sunglasses." },
-        { id: "gf_charge", category: "Events — August (GrillFest)", name: "GrillFest — Charging Station Sponsor", unitLabel: "Sponsorships", price: 10000, min: 0, max: 1, step: 1, reach: 0, notes: "Charging station branding." },
+        // GrillFest
+        { id: "gf_presenting", eventGroup: "GrillFest", category: "Events — August (GrillFest)", name: "Presenting", unitLabel: "Sponsorship", price: 20000, min: 0, max: 1, step: 1, reach: 0, blurb: "Top billing; barricade covers; logo on all media; 8 VIPs." },
+        { id: "gf_major", eventGroup: "GrillFest", category: "Events — August (GrillFest)", name: "Major", unitLabel: "Sponsorship", price: 7500, min: 0, max: 1, step: 1, reach: 0, blurb: "Logo on media; on‑site activation; 4 VIPs." },
+        { id: "gf_gold", eventGroup: "GrillFest", category: "Events — August (GrillFest)", name: "Gold", unitLabel: "Sponsorship", price: 5000, min: 0, max: 1, step: 1, reach: 0, blurb: "On‑site activation; logo on signage; 2 VIPs." },
+        // Competitor/table are not levels; keep as add‑ons
+        { id: "gf_competitor", eventGroup: null, category: "Events — August (GrillFest)", name: "Best Bite Competitor Entry", unitLabel: "Entry", price: 1195, min: 0, max: 3, step: 1, reach: 0, blurb: "Chef competition entry (up to 3 dishes)." },
+        { id: "gf_bev_table", eventGroup: null, category: "Events — August (GrillFest)", name: "Beverage Tasting Table", unitLabel: "Table", price: 795, min: 0, max: 10, step: 1, reach: 0, blurb: "10x10, TIPS bartender, sampling." },
 
-        { id: "savor_presenting", category: "Events — October (Savor Detroit)", name: "Savor Detroit — Presenting", unitLabel: "Sponsorships", price: 20000, min: 0, max: 1, step: 1, reach: 0, notes: "Great Lakes Culinary Center." },
-        { id: "savor_major", category: "Events — October (Savor Detroit)", name: "Savor Detroit — Major", unitLabel: "Sponsorships", price: 7500, min: 0, max: 4, step: 1, reach: 0, notes: "All nights recognition." },
-        { id: "savor_beverage", category: "Events — October (Savor Detroit)", name: "Savor Detroit — Beverage", unitLabel: "Sponsorships", price: 2500, min: 0, max: 4, step: 1, reach: 0, notes: "In signature cocktail." },
-        { id: "savor_silver", category: "Events — October (Savor Detroit)", name: "Savor Detroit — Silver", unitLabel: "Sponsorships", price: 1500, min: 0, max: 4, step: 1, reach: 0, notes: "One night, 2 tickets." },
-        { id: "savor_table", category: "Events — October (Savor Detroit)", name: "Savor Detroit — Reserved Table", unitLabel: "Tables", price: 2000, min: 0, max: 4, step: 1, reach: 0, notes: "Reserved table." },
-        { id: "savor_activation_cocktail", category: "Events — October (Savor Detroit)", name: "Savor Detroit — Activation: Cocktail Hour Sponsor", unitLabel: "Activations", price: 7500, min: 0, max: 1, step: 1, reach: 0, notes: "Premium activation." },
-        { id: "savor_activation_art", category: "Events — October (Savor Detroit)", name: "Savor Detroit — Activation: Tony Roko Art Auction", unitLabel: "Activations", price: 7500, min: 0, max: 1, step: 1, reach: 0, notes: "Premium activation." },
-        { id: "savor_activation_social", category: "Events — October (Savor Detroit)", name: "Savor Detroit — Activation: Social Media Sponsor", unitLabel: "Activations", price: 7500, min: 0, max: 1, step: 1, reach: 0, notes: "Premium activation." },
+        // Savor Detroit
+        { id: "savor_presenting", eventGroup: "Savor Detroit", category: "Events — October (Savor Detroit)", name: "Presenting", unitLabel: "Sponsorship", price: 20000, min: 0, max: 1, step: 1, reach: 0, blurb: "All-night recognition; address audience; step‑and‑repeat; 10 tickets." },
+        { id: "savor_major", eventGroup: "Savor Detroit", category: "Events — October (Savor Detroit)", name: "Major", unitLabel: "Sponsorship", price: 7500, min: 0, max: 1, step: 1, reach: 0, blurb: "Recognition all nights; on‑site display; 4 tickets." },
+        { id: "savor_silver", eventGroup: "Savor Detroit", category: "Events — October (Savor Detroit)", name: "Silver", unitLabel: "Sponsorship", price: 1500, min: 0, max: 1, step: 1, reach: 0, blurb: "One‑night recognition; 2 tickets." },
+        // Add-ons
+        { id: "savor_beverage", eventGroup: null, category: "Events — October (Savor Detroit)", name: "Beverage", unitLabel: "Sponsorship", price: 2500, min: 0, max: 4, step: 1, reach: 0, blurb: "Product featured in signature cocktail." },
+        { id: "savor_table", eventGroup: null, category: "Events — October (Savor Detroit)", name: "Reserved Table", unitLabel: "Table", price: 2000, min: 0, max: 4, step: 1, reach: 0, blurb: "Reserved table for your guests." },
 
-        { id: "eic_presenting", category: "Events — October (Excellence in Care)", name: "Excellence in Care — Presenting", unitLabel: "Sponsorships", price: 15000, min: 0, max: 1, step: 1, reach: 0, notes: "Colony Club, Detroit." },
-        { id: "eic_major", category: "Events — October (Excellence in Care)", name: "Excellence in Care — Major", unitLabel: "Sponsorships", price: 10000, min: 0, max: 4, step: 1, reach: 0, notes: "Major sponsor benefits." },
-        { id: "eic_gold", category: "Events — October (Excellence in Care)", name: "Excellence in Care — Gold", unitLabel: "Sponsorships", price: 5000, min: 0, max: 6, step: 1, reach: 0, notes: "Gold sponsor benefits." },
-        { id: "eic_silver", category: "Events — October (Excellence in Care)", name: "Excellence in Care — Silver", unitLabel: "Sponsorships", price: 1500, min: 0, max: 10, step: 1, reach: 0, notes: "Silver sponsor benefits." },
-        { id: "eic_table", category: "Events — October (Excellence in Care)", name: "Excellence in Care — Table", unitLabel: "Tables", price: 1500, min: 0, max: 10, step: 1, reach: 0, notes: "Premium reserved table." },
-        { id: "eic_td_hof", category: "Events — October (Excellence in Care)", name: "Excellence in Care — Top Dentists Hall of Fame", unitLabel: "Sponsorships", price: 10000, min: 0, max: 1, step: 1, reach: 0, notes: "Award sponsor." },
-        { id: "eic_tdox_hof", category: "Events — October (Excellence in Care)", name: "Excellence in Care — Top Docs Hall of Fame", unitLabel: "Sponsorships", price: 10000, min: 0, max: 1, step: 1, reach: 0, notes: "Award sponsor." },
-        { id: "eic_tc_hof", category: "Events — October (Excellence in Care)", name: "Excellence in Care — Top Chiropractors Hall of Fame", unitLabel: "Sponsorships", price: 10000, min: 0, max: 1, step: 1, reach: 0, notes: "Award sponsor." },
-        { id: "eic_nurse_year", category: "Events — October (Excellence in Care)", name: "Excellence in Care — Nurse of the Year", unitLabel: "Sponsorships", price: 10000, min: 0, max: 1, step: 1, reach: 0, notes: "Award sponsor." },
-        { id: "eic_beverage", category: "Events — October (Excellence in Care)", name: "Excellence in Care — Beverage Sponsor", unitLabel: "Sponsorships", price: 2000, min: 0, max: 2, step: 1, reach: 0, notes: "Category exclusivity; product at bar." },
-        { id: "eic_redcarpet", category: "Events — October (Excellence in Care)", name: "Excellence in Care — Red Carpet Sponsor", unitLabel: "Sponsorships", price: 10000, min: 0, max: 1, step: 1, reach: 0, notes: "Red carpet signage." },
-        { id: "eic_dinner", category: "Events — October (Excellence in Care)", name: "Excellence in Care — Dinner Sponsor", unitLabel: "Sponsorships", price: 2000, min: 0, max: 1, step: 1, reach: 0, notes: "Dinner sponsor." },
-        { id: "eic_dessert", category: "Events — October (Excellence in Care)", name: "Excellence in Care — Dessert Table Sponsor", unitLabel: "Sponsorships", price: 2000, min: 0, max: 1, step: 1, reach: 0, notes: "Dessert & coffee." },
+        // Excellence in Care
+        { id: "eic_presenting", eventGroup: "Excellence in Care", category: "Events — October (Excellence in Care)", name: "Presenting", unitLabel: "Sponsorship", price: 15000, min: 0, max: 1, step: 1, reach: 0, blurb: "Opening remarks; step‑and‑repeat; 10 tickets; premium branding." },
+        { id: "eic_major", eventGroup: "Excellence in Care", category: "Events — October (Excellence in Care)", name: "Major", unitLabel: "Sponsorship", price: 10000, min: 0, max: 1, step: 1, reach: 0, blurb: "Logo on media; reserved table; 10 tickets." },
+        { id: "eic_gold", eventGroup: "Excellence in Care", category: "Events — October (Excellence in Care)", name: "Gold", unitLabel: "Sponsorship", price: 5000, min: 0, max: 1, step: 1, reach: 0, blurb: "Logo on signage; 4 tickets." },
+        { id: "eic_silver", eventGroup: "Excellence in Care", category: "Events — October (Excellence in Care)", name: "Silver", unitLabel: "Sponsorship", price: 1500, min: 0, max: 1, step: 1, reach: 0, blurb: "On‑stage recognition; 2 tickets." },
+        // Add-ons
+        { id: "eic_table", eventGroup: null, category: "Events — October (Excellence in Care)", name: "Table", unitLabel: "Table", price: 1500, min: 0, max: 10, step: 1, reach: 0, blurb: "Premium reserved table with logo." },
+        { id: "eic_beverage", eventGroup: null, category: "Events — October (Excellence in Care)", name: "Beverage Sponsor", unitLabel: "Sponsorship", price: 2000, min: 0, max: 2, step: 1, reach: 0, blurb: "Your product served at event bar." },
       ];
 
       const offerings = [...printStandard, ...printPremium, ...printGroup, ...digital, ...events];
 
+      // --- Discounts ---
       function calculateDiscounts(lines, lineSubtotal) {
         const out = [];
-        const categoriesChosen = new Set(lines.filter(l => l.qty > 0).map(l => l.category));
+        const chosen = lines.filter(l => l.qty > 0);
+        const categoriesChosen = new Set(chosen.map(l => l.category));
+
+        // Bundle across 3+ categories (print/digital/event count as separate)
         if (categoriesChosen.size >= 3) {
           const disc = 0.10 * lineSubtotal;
           out.push({ code: "BUNDLE3", label: "Bundle across 3+ channels", amount: -disc });
         }
+
+        // Commitment incentive at $25k (existing)
+        if (lineSubtotal >= 25000) out.push({ code: "TIER25K", label: "Annual commitment incentive (>$25k)", amount: -(0.05 * lineSubtotal) });
+
+        // New bonus thresholds
+        if (lineSubtotal >= 60000) out.push({ code: "BONUS60K", label: "Bonus threshold (>$60k)", amount: -(0.05 * lineSubtotal) });
+        if (lineSubtotal >= 100000) out.push({ code: "BONUS100K", label: "Bonus threshold (>$100k)", amount: -(0.10 * lineSubtotal) });
+
         return out;
       }
 
+      // --- App ---
       function App() {
         const [lines, setLines] = useState(() => offerings.map(o => ({ ...o, qty: 0 })));
         const [targetBudget, setTargetBudget] = useState(0);
+        const [lead, setLead] = useState({ company: "", name: "", email: "", phone: "" });
 
+        // Credits: print insertions + event items + digital partner months
         const commitmentCredits = useMemo(() => {
           return lines.reduce((acc, l) => {
             if (!l.qty) return acc;
@@ -150,14 +152,31 @@
 
         const setQty = (id, qty) => setLines(prev => prev.map(l => (l.id === id ? { ...l, qty } : l)));
 
+        // Event level mutual exclusivity: when selecting one level, zero out others in the same eventGroup
+        const selectEventLevel = (group, id) => {
+          setLines(prev => prev.map(l => {
+            if (l.eventGroup === group) {
+              return { ...l, qty: (l.id === id ? 1 : 0) };
+            }
+            return l;
+          }));
+        };
+
+        const totals = useMemo(() => {
+          const lineSubtotal = lines.reduce((a, b) => a + (b.qty || 0) * computeUnitPrice(b, commitmentCredits), 0);
+          const estReach = lines.reduce((a, b) => a + (b.qty * (b.reach || 0)), 0);
+          const discounts = calculateDiscounts(lines, lineSubtotal);
+          const discountTotal = discounts.reduce((a, b) => a + b.amount, 0);
+          const net = Math.max(0, lineSubtotal + discountTotal);
+          return { lineSubtotal, discounts, discountTotal, net, estReach };
+        }, [lines, commitmentCredits]);
+
+        // Auto allocator (unchanged)
         const autoDistribute = () => {
           if (!targetBudget || targetBudget < 500) return;
           let remaining = targetBudget;
           let newLines = offerings.map(o => ({ ...o, qty: 0 }));
-          const order = [
-            "print_full", "digital_partner", "email_presenting", "bod_gold", "gf_gold", "savor_silver", "eic_silver",
-            "print_half", "dedicated_eblast_full", "social_post", "group_full"
-          ];
+          const order = ["print_full","digital_partner","email_presenting","bod_gold","gf_gold","savor_silver","eic_silver","print_half","dedicated_eblast_full","social_post","group_full"];
           for (const id of order) {
             const idx = newLines.findIndex(l => l.id === id);
             if (idx === -1) continue;
@@ -176,14 +195,45 @@
           setLines(newLines);
         };
 
-        const totals = useMemo(() => {
-          const lineSubtotal = lines.reduce((a, b) => a + (b.qty || 0) * computeUnitPrice(b, commitmentCredits), 0);
-          const estReach = lines.reduce((a, b) => a + (b.qty * (b.reach || 0)), 0);
-          const discounts = calculateDiscounts(lines, lineSubtotal);
-          const discountTotal = discounts.reduce((a, b) => a + b.amount, 0);
-          const net = Math.max(0, lineSubtotal + discountTotal);
-          return { lineSubtotal, discounts, discountTotal, net, estReach };
-        }, [lines, commitmentCredits]);
+        // Submit via email (non‑binding request)
+        const mailto = () => {
+          const required = ["company","name","email","phone"];
+          const missing = required.filter(k => !lead[k]);
+          if (missing.length) {
+            alert("Please provide: " + missing.join(", "));
+            return;
+          }
+          const selected = lines.filter(l => l.qty > 0);
+          if (!selected.length) {
+            alert("Please add at least one placement to your plan.");
+            return;
+          }
+          const bodyLines = [];
+          bodyLines.push("NON‑BINDING REQUEST — Hour Detroit Media Plan");
+          bodyLines.push("");
+          bodyLines.push(`Company: ${lead.company}`);
+          bodyLines.push(`Contact: ${lead.name}`);
+          bodyLines.push(`Email: ${lead.email}`);
+          bodyLines.push(`Phone: ${lead.phone}`);
+          bodyLines.push("");
+          bodyLines.push("Selections:");
+          selected.forEach(l => {
+            const up = computeUnitPrice(l, commitmentCredits);
+            bodyLines.push(` - ${l.category} | ${l.name} — Qty ${l.qty} @ ${currency(up)} = ${currency(l.qty * up)}`);
+          });
+          bodyLines.push("");
+          bodyLines.push(`Subtotal: ${currency(totals.lineSubtotal)}`);
+          totals.discounts.forEach(d => bodyLines.push(`Discount: ${d.label} ${currency(d.amount)}`));
+          bodyLines.push(`Estimated Total: ${currency(totals.net)}`);
+          bodyLines.push("");
+          bodyLines.push("*This is a request for proposal and does not constitute a binding contract. Hour Detroit will confirm inventory, specs, and final pricing.");
+          const subject = encodeURIComponent(`Media Plan Request — ${lead.company}`);
+          const body = encodeURIComponent(bodyLines.join("\n"));
+          window.location.href = `mailto:advertising@hour-media.com?subject=${subject}&body=${body}`;
+        };
+
+        // --- Rendering ---
+        const categories = Array.from(new Set(offerings.map(o => o.category)));
 
         return (
           <div className="min-h-screen bg-gray-50">
@@ -193,7 +243,7 @@
                   <div className="w-10 h-10 rounded-2xl bg-black text-white grid place-items-center font-semibold">HD</div>
                   <div>
                     <h1 className="text-xl font-bold">Hour Detroit — Media Plan Builder</h1>
-                    <p className="text-sm text-gray-500">Build your custom cross-channel plan. Pricing shown is illustrative.</p>
+                    <p className="text-sm text-gray-500">Build a custom plan. Submit as a non‑binding request; our team will follow up.</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -205,60 +255,126 @@
             </header>
 
             <main className="max-w-7xl mx-auto px-4 py-6 grid lg:grid-cols-3 gap-6 print:block">
+              {/* Catalog */}
               <section className="lg:col-span-2 bg-white rounded-2xl shadow p-4 print:shadow-none print:p-0">
                 <h2 className="text-lg font-semibold mb-3">Choose your placements</h2>
-                {Array.from(new Set(offerings.map(o=>o.category))).map(cat => (
-                  <div key={cat} className="mb-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-gray-700">{cat}</h3>
-                      <div className="text-xs text-gray-500">Tiered print rates unlock via Commitment Credits.</div>
-                    </div>
-                    <div className="mt-2 overflow-hidden rounded-xl border">
-                      <table className="w-full text-sm">
-                        <thead className="bg-gray-100 text-left">
-                          <tr>
-                            <th className="p-3">Placement</th>
-                            <th className="p-3">Unit</th>
-                            <th className="p-3 text-right">Unit Price</th>
-                            <th className="p-3 text-center">Qty</th>
-                            <th className="p-3 text-right">Line Total</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {lines.filter(l=>l.category===cat).map(l => (
-                            <tr key={l.id} className="border-t align-top">
-                              <td className="p-3">
-                                <div className="font-medium">{l.name}</div>
-                                <div className="text-xs text-gray-500">{l.notes}</div>
-                              </td>
-                              <td className="p-3">{l.unitLabel}</td>
-                              <td className="p-3 text-right whitespace-nowrap">{currency(computeUnitPrice(l, commitmentCredits))}{isPrintItem(l) && <span className="ml-1 text-[10px] text-gray-500">({getPrintTier(commitmentCredits)})</span>}</td>
-                              <td className="p-3 text-center">
-                                <div className="inline-flex items-center gap-2">
-                                  <button className="px-2 py-1 border rounded-lg" onClick={()=>setQty(l.id, Math.max(l.min || 0, Math.min(l.max || 999, (l.qty||0) - (l.step||1))))}>–</button>
-                                  <input
-                                    type="number"
-                                    min={l.min || 0}
-                                    max={l.max || 999}
-                                    step={l.step || 1}
-                                    value={l.qty || 0}
-                                    onChange={(e)=>setQty(l.id, Math.max(l.min || 0, Math.min(l.max || 999, Number(e.target.value)||0)))}
-                                    className="w-24 border rounded-lg px-2 py-1 text-center"
-                                  />
-                                  <button className="px-2 py-1 border rounded-lg" onClick={()=>setQty(l.id, Math.max(l.min || 0, Math.min(l.max || 999, (l.qty||0) + (l.step||1))))}>+</button>
+
+                {categories.map(cat => {
+                  const rows = offerings.filter(o => o.category === cat);
+                  const hasEventLevels = rows.some(r => r.eventGroup);
+                  const groups = {};
+                  rows.forEach(r => {
+                    const key = r.eventGroup || `__no_group__${r.id}`;
+                    if (!groups[key]) groups[key] = [];
+                    groups[key].push(r);
+                  });
+
+                  return (
+                    <div key={cat} className="mb-6">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold text-gray-700">{cat}</h3>
+                        <div className="text-xs text-gray-500">Print tiers unlock via Commitment Credits. Event levels are single‑select.</div>
+                      </div>
+
+                      {/* If event levels exist, render radio groups */}
+                      {hasEventLevels ? (
+                        <div className="mt-3 space-y-4">
+                          {Object.entries(groups).map(([key, opts]) => (
+                            key.startsWith("__no_group__") ? (
+                              // Add-ons (not exclusive)
+                              <div key={key} className="border rounded-xl p-3">
+                                {opts.map(l => (
+                                  <div key={l.id} className="flex items-start justify-between gap-3 py-1">
+                                    <div>
+                                      <div className="font-medium">{l.name} <span className="text-xs text-gray-500">({l.unitLabel})</span></div>
+                                      <div className="text-xs text-gray-500">{l.blurb}</div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <div className="text-sm mr-2">{currency(computeUnitPrice(l, commitmentCredits))}</div>
+                                      <button className="px-2 py-1 border rounded-lg" onClick={()=>setQty(l.id, Math.max(0,(l.qty||0)-1))}>–</button>
+                                      <input type="number" className="w-16 border rounded-lg px-2 py-1 text-center" value={l.qty||0} min={0} max={l.max||99} step={l.step||1} onChange={(e)=>setQty(l.id, Math.max(0, Math.min(l.max||99, Number(e.target.value)||0)))} />
+                                      <button className="px-2 py-1 border rounded-lg" onClick={()=>setQty(l.id, Math.min((l.max||99),(l.qty||0)+1))}>+</button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              // Exclusive level group
+                              <div key={key} className="border rounded-xl p-3">
+                                <div className="text-xs font-semibold text-gray-600 mb-2">{key}</div>
+                                <div className="space-y-2">
+                                  {opts.map(l => {
+                                    const price = computeUnitPrice(l, commitmentCredits);
+                                    const selected = (lines.find(x => x.id === l.id)?.qty || 0) > 0;
+                                    return (
+                                      <label key={l.id} className="flex items-start justify-between gap-3 cursor-pointer">
+                                        <div className="flex items-start gap-2">
+                                          <input type="radio" name={key} checked={selected} onChange={()=>selectEventLevel(l.eventGroup, l.id)} />
+                                          <div>
+                                            <div className="font-medium">{l.name} <span className="text-xs text-gray-500">({l.unitLabel})</span></div>
+                                            <div className="text-xs text-gray-500">{l.blurb}</div>
+                                          </div>
+                                        </div>
+                                        <div className="text-sm">{currency(price)}</div>
+                                      </label>
+                                    );
+                                  })}
+                                  {/* None option */}
+                                  <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                                    <input type="radio" name={key} checked={opts.every(o => (lines.find(x=>x.id===o.id)?.qty||0)===0)} onChange={()=>selectEventLevel(opts[0].eventGroup, "__none__")} />
+                                    <span className="text-sm text-gray-600">None</span>
+                                  </label>
                                 </div>
-                                <div className="text-[11px] text-gray-500 mt-1">Min {l.min || 0} • Max {l.max || 999} • Step {l.step || 1}</div>
-                              </td>
-                              <td className="p-3 text-right font-medium">{currency((l.qty||0)*computeUnitPrice(l, commitmentCredits))}</td>
-                            </tr>
+                              </div>
+                            )
                           ))}
-                        </tbody>
-                      </table>
+                        </div>
+                      ) : (
+                        // Default tabular render
+                        <div className="mt-2 overflow-hidden rounded-xl border">
+                          <table className="w-full text-sm">
+                            <thead className="bg-gray-100 text-left">
+                              <tr>
+                                <th className="p-3">Placement</th>
+                                <th className="p-3">Unit</th>
+                                <th className="p-3 text-right">Unit Price</th>
+                                <th className="p-3 text-center">Qty</th>
+                                <th className="p-3 text-right">Line Total</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {rows.map(l => {
+                                const price = computeUnitPrice(l, commitmentCredits);
+                                return (
+                                  <tr key={l.id} className="border-t align-top">
+                                    <td className="p-3">
+                                      <div className="font-medium">{l.name}</div>
+                                      <div className="text-xs text-gray-500">{l.notes || l.blurb}</div>
+                                    </td>
+                                    <td className="p-3">{l.unitLabel}</td>
+                                    <td className="p-3 text-right whitespace-nowrap">{currency(price)}{isPrintItem(l) && <span className="ml-1 text-[10px] text-gray-500">({getPrintTier(commitmentCredits)})</span>}</td>
+                                    <td className="p-3 text-center">
+                                      <div className="inline-flex items-center gap-2">
+                                        <button className="px-2 py-1 border rounded-lg" onClick={()=>setQty(l.id, Math.max(l.min||0, (l.qty||0)-(l.step||1)))}>–</button>
+                                        <input type="number" min={l.min||0} max={l.max||999} step={l.step||1} value={l.qty||0} onChange={(e)=>setQty(l.id, Math.max(l.min||0, Math.min(l.max||999, Number(e.target.value)||0)))} className="w-20 border rounded-lg px-2 py-1 text-center" />
+                                        <button className="px-2 py-1 border rounded-lg" onClick={()=>setQty(l.id, Math.min(l.max||999, (l.qty||0)+(l.step||1)))}>+</button>
+                                      </div>
+                                      <div className="text-[11px] text-gray-500 mt-1">Min {l.min||0} • Max {l.max||999} • Step {l.step||1}</div>
+                                    </td>
+                                    <td className="p-3 text-right font-medium">{currency((l.qty||0)*price)}</td>
+                                  </tr>
+                                )
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </section>
 
+              {/* Summary & Submit */}
               <aside className="bg-white rounded-2xl shadow p-4 h-fit sticky top-20 print:static print:shadow-none print:p-0">
                 <h2 className="text-lg font-semibold mb-3">Summary</h2>
                 <div className="space-y-2 text-sm">
@@ -272,20 +388,29 @@
                     <span className="font-semibold">Estimated Total</span>
                     <span className="font-bold">{currency(totals.net)}</span>
                   </div>
-                  <div className="flex justify-between text-xs text-gray-600">
-                    <span>Est. combined reach* </span>
-                    <span>{totals.estReach.toLocaleString()}+</span>
-                  </div>
                 </div>
 
                 <div className="mt-4 p-3 rounded-xl bg-gray-50 text-[11px] text-gray-600">
-                  *Reach estimates are directional and subject to inventory, pacing, targeting, and seasonality. Final pricing and specs confirmed by Hour Detroit.
+                  *This tool generates a <b>non‑binding request</b>. Hour Detroit will confirm inventory, specs, dates, and final pricing.
+                </div>
+
+                <h3 className="mt-6 font-semibold">Contact</h3>
+                <div className="mt-2 grid grid-cols-1 gap-2 text-sm">
+                  <input className="border rounded-lg px-3 py-2" placeholder="Company" value={lead.company} onChange={(e)=>setLead({...lead, company: e.target.value})} />
+                  <input className="border rounded-lg px-3 py-2" placeholder="Name" value={lead.name} onChange={(e)=>setLead({...lead, name: e.target.value})} />
+                  <input className="border rounded-lg px-3 py-2" placeholder="Email" value={lead.email} onChange={(e)=>setLead({...lead, email: e.target.value})} />
+                  <input className="border rounded-lg px-3 py-2" placeholder="Phone" value={lead.phone} onChange={(e)=>setLead({...lead, phone: e.target.value})} />
+                </div>
+
+                <div className="mt-4 grid grid-cols-1 gap-2">
+                  <button onClick={mailto} className="px-3 py-2 rounded-xl bg-black text-white">Submit Request</button>
+                  <button onClick={()=>window.print()} className="px-3 py-2 rounded-xl border">Print / Save PDF</button>
                 </div>
               </aside>
             </main>
 
             <footer className="max-w-7xl mx-auto px-4 pb-10 text-xs text-gray-500">
-              © 2025 Hour Detroit (Demo planner). All pricing/specs are illustrative.
+              © {new Date().getFullYear()} Hour Detroit (Demo planner). All pricing/specs are illustrative. Replace with official rate card before publishing.
             </footer>
           </div>
         );
