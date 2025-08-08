@@ -4,17 +4,24 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Hour Detroit — Media Plan Builder (V2 Prototype)</title>
+    <title>Hour Detroit — Media Plan Builder (V2.3)</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      :root{
+        --brand-red:#E2231A;
+      }
+      .accent { color: var(--brand-red); }
+      .chip { background: rgba(226,35,26,.08); color: var(--brand-red); }
+    </style>
   </head>
   <body class="bg-gray-50">
     <div id="root"></div>
     <script type="text/babel" data-presets="env,react">
-      const { useMemo, useState, useRef } = React;
-
+      const { useMemo, useState } = React;
       const currency = (n) => n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
       const PRINT_TIER_THRESHOLDS = [
         { label: "12x", minCredits: 12 },
@@ -23,20 +30,11 @@
         { label: "3x", minCredits: 3 },
         { label: "1x", minCredits: 0 },
       ];
-      const getPrintTier = (credits) => {
-        for (const t of PRINT_TIER_THRESHOLDS) if (credits >= t.minCredits) return t.label;
-        return "1x";
-      };
+      const getPrintTier = (credits) => { for (const t of PRINT_TIER_THRESHOLDS) if (credits >= t.minCredits) return t.label; return "1x"; };
       const isPrintItem = (item) => !!item.rateTiers;
-      const computeUnitPrice = (item, credits) => {
-        if (isPrintItem(item)) {
-          const tier = getPrintTier(credits);
-          return item.rateTiers[tier] ?? Object.values(item.rateTiers)[0];
-        }
-        return item.price || 0;
-      };
+      const computeUnitPrice = (item, credits) => isPrintItem(item) ? (item.rateTiers[getPrintTier(credits)] ?? Object.values(item.rateTiers)[0]) : (item.price || 0);
 
-      // --- Offerings ---
+      // ---- Offerings (print/digital unchanged) ----
       const printStandard = [
         { id: "print_spread", category: "Print — Standard", name: "Spread", unitLabel: "Insertions", min: 1, max: 12, step: 1, reach: 194000, notes: "Two facing pages.", rateTiers: { "1x": 12300, "3x": 11640, "6x": 11000, "9x": 10350, "12x": 10075 } },
         { id: "print_full", category: "Print — Standard", name: "Full Page", unitLabel: "Insertions", min: 1, max: 12, step: 1, reach: 194000, notes: "Bleed included.", rateTiers: { "1x": 6485, "3x": 6175, "6x": 5865, "9x": 5435, "12x": 5230 } },
@@ -54,7 +52,6 @@
         { id: "group_half", category: "Print — Group Sections", name: "Group Sections — Half Page", unitLabel: "Insertions", min: 1, max: 12, step: 1, reach: 194000, notes: "Grouped advertorial sections.", rateTiers: { "1x": 3670, "3x": 3250, "6x": 2830, "9x": 2410, "12x": 1990 } },
         { id: "group_quarter", category: "Print — Group Sections", name: "Group Sections — Quarter Page", unitLabel: "Insertions", min: 1, max: 12, step: 1, reach: 194000, notes: "Grouped advertorial sections.", rateTiers: { "1x": 2055, "3x": 1790, "6x": 1525, "9x": 1260, "12x": 995 } },
       ];
-
       const digital = [
         { id: "digital_partner", category: "Digital", name: "Digital Partnership (Monthly)", unitLabel: "Months", price: 2995, min: 0, max: 12, step: 1, reach: 320000, notes: "Logo on all pages, min 100k impressions/mo, e-newsletter 300x250 (12/mo), 1 e-blast/quarter, 1 sponsored social/mo. 3-month recommended." },
         { id: "digital_directory", category: "Digital", name: "Premium Directory Profile", unitLabel: "Years", price: 1495, min: 0, max: 3, step: 1, reach: 0, notes: "Annual profile." },
@@ -74,93 +71,92 @@
         { id: "lower_takeover", category: "Digital", name: "High Impact Lower Takeover (Weekly)", unitLabel: "Weeks", price: 750, min: 0, max: 52, step: 1, reach: 0, notes: "High-impact site unit." },
       ];
 
-      // Event level groups (mutually exclusive)
-      const events = [
-        // Best of Detroit
-        { id: "bod_presenting", eventGroup: "Best of Detroit", category: "Events — June (Best of Detroit)", name: "Presenting", unitLabel: "Sponsorship", price: 25000, min: 0, max: 1, step: 1, reach: 0, blurb: "Top billing; logo on all materials; premium on-site activation; 8 VIPs." },
-        { id: "bod_major", eventGroup: "Best of Detroit", category: "Events — June (Best of Detroit)", name: "Major", unitLabel: "Sponsorship", price: 10000, min: 0, max: 1, step: 1, reach: 0, blurb: "Logo on print/web/social; on‑site activation; 4 VIPs." },
-        { id: "bod_gold", eventGroup: "Best of Detroit", category: "Events — June (Best of Detroit)", name: "Gold", unitLabel: "Sponsorship", price: 5000, min: 0, max: 1, step: 1, reach: 0, blurb: "Logo on signage; on‑site display; 4 VIPs." },
-        { id: "bod_lounge", eventGroup: "Best of Detroit", category: "Events — June (Best of Detroit)", name: "Branded Lounge", unitLabel: "Activation", price: 1500, min: 0, max: 1, step: 1, reach: 0, blurb: "Branded 8’ table/lounge space; logo on signage; 4 VIPs." },
+      // ---- Event options: ALL radio single-choice per event ----
+      const eventOptions = {
+        "Best of Detroit": [
+          { id: "bod_presenting", name: "Presenting", price: 25000, blurb: "Top billing; logo on all materials; premium on-site; 8 VIPs." },
+          { id: "bod_major", name: "Major", price: 10000, blurb: "Logo across media; on‑site activation; 4 VIPs." },
+          { id: "bod_gold", name: "Gold", price: 5000, blurb: "Logo on signage; on‑site display; 4 VIPs." },
+          { id: "bod_lounge", name: "Branded Lounge", price: 1500, blurb: "Branded 8’ table/lounge; logo; 4 VIPs." },
+          { id: "bod_automotive", name: "Automotive", price: 10000, blurb: "Premium auto display; 4 VIPs." },
+          { id: "bod_redcarpet", name: "Red Carpet", price: 10000, blurb: "Brand the red carpet zone." },
+          { id: "bod_beverage", name: "Beverage (type exclusive)", price: 3000, blurb: "Pour at event bars; exclusivity by type." },
+          { id: "bod_mainstage", name: "Main Stage", price: 10000, blurb: "Stage branding and recognition." },
+          { id: "bod_viplounge", name: "Speak Easy / VIP Lounge", price: 10000, blurb: "Brand the VIP area." },
+        ],
+        "GrillFest": [
+          { id: "gf_presenting", name: "Presenting", price: 20000, blurb: "Top billing; barricade covers; logo across media; 8 VIPs." },
+          { id: "gf_major", name: "Major", price: 7500, blurb: "Logo on media; on‑site activation; 4 VIPs." },
+          { id: "gf_gold", name: "Gold", price: 5000, blurb: "On‑site activation; logo on signage; 2 VIPs." },
+          { id: "gf_bestbite_sponsor", name: "Best Bite Competition Sponsor", price: 15000, blurb: "Title on voting platform; stage awards." },
+          { id: "gf_cornhole", name: "Cornhole Sponsor", price: 10000, blurb: "Logo printed on boards; zone ownership." },
+          { id: "gf_swbag", name: "VIP Swag Bag Sponsor", price: 10000, blurb: "Logo on 200 reusable bags." },
+          { id: "gf_kidzone", name: "Kid Zone Sponsor", price: 10000, blurb: "Own the kids' area and signage." },
+          { id: "gf_vehicle", name: "Vehicle Sponsor", price: 10000, blurb: "Display up to four vehicles." },
+          { id: "gf_sunglasses", name: "Sunglasses Sponsor", price: 10000, blurb: "Logo on 500 sunglasses." },
+          { id: "gf_charge", name: "Charging Station Sponsor", price: 10000, blurb: "Custom-branded charging station." },
+        ],
+        "Savor Detroit": [
+          { id: "savor_presenting", name: "Presenting", price: 20000, blurb: "All-night recognition; address audience; step‑and‑repeat; 10 tickets." },
+          { id: "savor_major", name: "Major", price: 7500, blurb: "Recognition all nights; on‑site display; 4 tickets." },
+          { id: "savor_beverage", name: "Beverage", price: 2500, blurb: "Product featured in signature cocktail." },
+          { id: "savor_silver", name: "Silver", price: 1500, blurb: "One‑night recognition; 2 tickets." },
+          { id: "savor_activation_cocktail", name: "Activation: Cocktail Hour Sponsor", price: 7500, blurb: "Own cocktail hour branding." },
+          { id: "savor_activation_art", name: "Activation: Tony Roko Art Auction", price: 7500, blurb: "Brand the silent auction zone." },
+          { id: "savor_activation_social", name: "Activation: Social Media Sponsor", price: 7500, blurb: "Tagged collaborator on chef promos." },
+          { id: "savor_table", name: "Reserved Table", price: 2000, blurb: "Reserved table for your guests." },
+        ],
+        "Excellence in Care": [
+          { id: "eic_presenting", name: "Presenting", price: 15000, blurb: "Opening remarks; step‑and‑repeat; 10 tickets; premium branding." },
+          { id: "eic_major", name: "Major", price: 10000, blurb: "Logo on media; reserved table; 10 tickets." },
+          { id: "eic_gold", name: "Gold", price: 5000, blurb: "Logo on signage; 4 tickets." },
+          { id: "eic_silver", name: "Silver", price: 1500, blurb: "On‑stage recognition; 2 tickets." },
+          { id: "eic_td_hof", name: "Top Dentists Hall of Fame (Award)", price: 10000, blurb: "Present the award; name on trophy." },
+          { id: "eic_tdox_hof", name: "Top Docs Hall of Fame (Award)", price: 10000, blurb: "Present the award; name on trophy." },
+          { id: "eic_tc_hof", name: "Top Chiropractors Hall of Fame (Award)", price: 10000, blurb: "Present the award; name on trophy." },
+          { id: "eic_nurse_year", name: "Nurse of the Year (Award)", price: 10000, blurb: "Present the award; name on trophy." },
+          { id: "eic_redcarpet", name: "Red Carpet Sponsor", price: 10000, blurb: "Logo on step‑and‑repeat + carpet signage." },
+          { id: "eic_beverage", name: "Beverage Sponsor", price: 2000, blurb: "Your product served at the bar." },
+          { id: "eic_dinner", name: "Dinner Sponsor", price: 2000, blurb: "“Tonight’s Dinner Sponsored by” signage." },
+          { id: "eic_dessert", name: "Dessert Table Sponsor", price: 2000, blurb: "Dessert & coffee station branding." },
+          { id: "eic_table", name: "Premium Table", price: 1500, blurb: "Reserved table with logo." },
+        ],
+      };
 
-        // GrillFest
-        { id: "gf_presenting", eventGroup: "GrillFest", category: "Events — August (GrillFest)", name: "Presenting", unitLabel: "Sponsorship", price: 20000, min: 0, max: 1, step: 1, reach: 0, blurb: "Top billing; barricade covers; logo on all media; 8 VIPs." },
-        { id: "gf_major", eventGroup: "GrillFest", category: "Events — August (GrillFest)", name: "Major", unitLabel: "Sponsorship", price: 7500, min: 0, max: 1, step: 1, reach: 0, blurb: "Logo on media; on‑site activation; 4 VIPs." },
-        { id: "gf_gold", eventGroup: "GrillFest", category: "Events — August (GrillFest)", name: "Gold", unitLabel: "Sponsorship", price: 5000, min: 0, max: 1, step: 1, reach: 0, blurb: "On‑site activation; logo on signage; 2 VIPs." },
-        // Competitor/table are not levels; keep as add‑ons
-        { id: "gf_competitor", eventGroup: null, category: "Events — August (GrillFest)", name: "Best Bite Competitor Entry", unitLabel: "Entry", price: 1195, min: 0, max: 3, step: 1, reach: 0, blurb: "Chef competition entry (up to 3 dishes)." },
-        { id: "gf_bev_table", eventGroup: null, category: "Events — August (GrillFest)", name: "Beverage Tasting Table", unitLabel: "Table", price: 795, min: 0, max: 10, step: 1, reach: 0, blurb: "10x10, TIPS bartender, sampling." },
+      const eventOfferings = Object.entries(eventOptions).flatMap(([group, opts]) =>
+        opts.map(o => ({ id: o.id, category: `Events — ${group}`, name: `${group} — ${o.name}`, unitLabel: "Sponsorship", price: o.price, min: 0, max: 1, step: 1, reach: 0, blurb: o.blurb, eventGroup: group }))
+      );
 
-        // Savor Detroit
-        { id: "savor_presenting", eventGroup: "Savor Detroit", category: "Events — October (Savor Detroit)", name: "Presenting", unitLabel: "Sponsorship", price: 20000, min: 0, max: 1, step: 1, reach: 0, blurb: "All-night recognition; address audience; step‑and‑repeat; 10 tickets." },
-        { id: "savor_major", eventGroup: "Savor Detroit", category: "Events — October (Savor Detroit)", name: "Major", unitLabel: "Sponsorship", price: 7500, min: 0, max: 1, step: 1, reach: 0, blurb: "Recognition all nights; on‑site display; 4 tickets." },
-        { id: "savor_silver", eventGroup: "Savor Detroit", category: "Events — October (Savor Detroit)", name: "Silver", unitLabel: "Sponsorship", price: 1500, min: 0, max: 1, step: 1, reach: 0, blurb: "One‑night recognition; 2 tickets." },
-        // Add-ons
-        { id: "savor_beverage", eventGroup: null, category: "Events — October (Savor Detroit)", name: "Beverage", unitLabel: "Sponsorship", price: 2500, min: 0, max: 4, step: 1, reach: 0, blurb: "Product featured in signature cocktail." },
-        { id: "savor_table", eventGroup: null, category: "Events — October (Savor Detroit)", name: "Reserved Table", unitLabel: "Table", price: 2000, min: 0, max: 4, step: 1, reach: 0, blurb: "Reserved table for your guests." },
+      const offerings = [...printStandard, ...printPremium, ...printGroup, ...digital, ...eventOfferings];
 
-        // Excellence in Care
-        { id: "eic_presenting", eventGroup: "Excellence in Care", category: "Events — October (Excellence in Care)", name: "Presenting", unitLabel: "Sponsorship", price: 15000, min: 0, max: 1, step: 1, reach: 0, blurb: "Opening remarks; step‑and‑repeat; 10 tickets; premium branding." },
-        { id: "eic_major", eventGroup: "Excellence in Care", category: "Events — October (Excellence in Care)", name: "Major", unitLabel: "Sponsorship", price: 10000, min: 0, max: 1, step: 1, reach: 0, blurb: "Logo on media; reserved table; 10 tickets." },
-        { id: "eic_gold", eventGroup: "Excellence in Care", category: "Events — October (Excellence in Care)", name: "Gold", unitLabel: "Sponsorship", price: 5000, min: 0, max: 1, step: 1, reach: 0, blurb: "Logo on signage; 4 tickets." },
-        { id: "eic_silver", eventGroup: "Excellence in Care", category: "Events — October (Excellence in Care)", name: "Silver", unitLabel: "Sponsorship", price: 1500, min: 0, max: 1, step: 1, reach: 0, blurb: "On‑stage recognition; 2 tickets." },
-        // Add-ons
-        { id: "eic_table", eventGroup: null, category: "Events — October (Excellence in Care)", name: "Table", unitLabel: "Table", price: 1500, min: 0, max: 10, step: 1, reach: 0, blurb: "Premium reserved table with logo." },
-        { id: "eic_beverage", eventGroup: null, category: "Events — October (Excellence in Care)", name: "Beverage Sponsor", unitLabel: "Sponsorship", price: 2000, min: 0, max: 2, step: 1, reach: 0, blurb: "Your product served at event bar." },
-      ];
-
-      const offerings = [...printStandard, ...printPremium, ...printGroup, ...digital, ...events];
-
-      // --- Discounts ---
       function calculateDiscounts(lines, lineSubtotal) {
         const out = [];
         const chosen = lines.filter(l => l.qty > 0);
-        const categoriesChosen = new Set(chosen.map(l => l.category));
-
-        // Bundle across 3+ categories (print/digital/event count as separate)
-        if (categoriesChosen.size >= 3) {
-          const disc = 0.10 * lineSubtotal;
-          out.push({ code: "BUNDLE3", label: "Bundle across 3+ channels", amount: -disc });
-        }
-
-        // Commitment incentive at $25k (existing)
+        const channels = new Set(chosen.map(l => l.category.split(" — ")[0]));
+        if (channels.size >= 3) out.push({ code: "BUNDLE3", label: "Bundle across 3+ channels", amount: -(0.10 * lineSubtotal) });
         if (lineSubtotal >= 25000) out.push({ code: "TIER25K", label: "Annual commitment incentive (>$25k)", amount: -(0.05 * lineSubtotal) });
-
-        // New bonus thresholds
         if (lineSubtotal >= 60000) out.push({ code: "BONUS60K", label: "Bonus threshold (>$60k)", amount: -(0.05 * lineSubtotal) });
         if (lineSubtotal >= 100000) out.push({ code: "BONUS100K", label: "Bonus threshold (>$100k)", amount: -(0.10 * lineSubtotal) });
-
         return out;
       }
 
-      // --- App ---
       function App() {
         const [lines, setLines] = useState(() => offerings.map(o => ({ ...o, qty: 0 })));
         const [targetBudget, setTargetBudget] = useState(0);
         const [lead, setLead] = useState({ company: "", name: "", email: "", phone: "" });
 
-        // Credits: print insertions + event items + digital partner months
-        const commitmentCredits = useMemo(() => {
-          return lines.reduce((acc, l) => {
-            if (!l.qty) return acc;
-            if (l.rateTiers) return acc + l.qty;
-            if (l.category.startsWith("Events")) return acc + l.qty;
-            if (l.id === "digital_partner") return acc + l.qty;
-            return acc;
-          }, 0);
-        }, [lines]);
-        const currentPrintTier = getPrintTier(commitmentCredits);
-
+        const selectEventLevel = (group, id) => setLines(prev => prev.map(l => (l.eventGroup === group ? { ...l, qty: (l.id === id ? 1 : 0) } : l)));
         const setQty = (id, qty) => setLines(prev => prev.map(l => (l.id === id ? { ...l, qty } : l)));
 
-        // Event level mutual exclusivity: when selecting one level, zero out others in the same eventGroup
-        const selectEventLevel = (group, id) => {
-          setLines(prev => prev.map(l => {
-            if (l.eventGroup === group) {
-              return { ...l, qty: (l.id === id ? 1 : 0) };
-            }
-            return l;
-          }));
-        };
+        const commitmentCredits = useMemo(() => lines.reduce((acc, l) => {
+          if (!l.qty) return acc;
+          if (l.rateTiers) return acc + l.qty;
+          if (l.category.startsWith("Events")) return acc + l.qty;
+          if (l.id === "digital_partner") return acc + l.qty;
+          return acc;
+        }, 0), [lines]);
+
+        const currentPrintTier = getPrintTier(commitmentCredits);
 
         const totals = useMemo(() => {
           const lineSubtotal = lines.reduce((a, b) => a + (b.qty || 0) * computeUnitPrice(b, commitmentCredits), 0);
@@ -171,166 +167,115 @@
           return { lineSubtotal, discounts, discountTotal, net, estReach };
         }, [lines, commitmentCredits]);
 
-        // Auto allocator (unchanged)
+        const mailto = () => {
+          const required = ["company","name","email","phone"];
+          const missing = required.filter(k => !lead[k]);
+          if (missing.length) return alert("Please provide: " + missing.join(", "));
+          const selected = lines.filter(l => l.qty > 0);
+          if (!selected.length) return alert("Please add at least one placement.");
+          const body = [
+            "NON‑BINDING REQUEST — Hour Detroit Media Plan",
+            "",
+            `Company: ${lead.company}`,
+            `Contact: ${lead.name}`,
+            `Email: ${lead.email}`,
+            `Phone: ${lead.phone}`,
+            "",
+            "Selections:",
+            ...selected.map(l => ` - ${l.category} | ${l.name} — Qty ${l.qty} @ ${currency(computeUnitPrice(l, commitmentCredits))} = ${currency(l.qty*computeUnitPrice(l, commitmentCredits))}`),
+            "",
+            `Subtotal: ${currency(totals.lineSubtotal)}`,
+            ...totals.discounts.map(d => `Discount: ${d.label} ${currency(d.amount)}`),
+            `Estimated Total: ${currency(totals.net)}`,
+            "",
+            "*This is a request for proposal and does not constitute a binding contract. Hour Detroit will confirm inventory, specs, and final pricing."
+          ].join("\n");
+          const subject = encodeURIComponent(`Media Plan Request — ${lead.company}`);
+          window.location.href = `mailto:advertising@hour-media.com?subject=${subject}&body=${encodeURIComponent(body)}`;
+        };
+
         const autoDistribute = () => {
           if (!targetBudget || targetBudget < 500) return;
           let remaining = targetBudget;
           let newLines = offerings.map(o => ({ ...o, qty: 0 }));
-          const order = ["print_full","digital_partner","email_presenting","bod_gold","gf_gold","savor_silver","eic_silver","print_half","dedicated_eblast_full","social_post","group_full"];
+          const order = ["print_full","digital_partner","email_presenting","group_full","spon_content","social_post"];
           for (const id of order) {
             const idx = newLines.findIndex(l => l.id === id);
             if (idx === -1) continue;
             const item = newLines[idx];
             const tempCredits = newLines.reduce((a,b)=>a + (b.rateTiers?b.qty:0) + (b.category?.startsWith("Events")?b.qty:0) + (b.id==="digital_partner"?b.qty:0), 0);
-            const unitPrice = computeUnitPrice(item, tempCredits);
-            while (remaining >= unitPrice && item.qty + (item.step||1) <= (item.max||999)) {
-              const nextQty = item.qty + (item.step||1);
-              const nextCost = nextQty * unitPrice;
-              if (nextCost <= remaining * 1.05) {
-                item.qty = nextQty;
-                remaining -= unitPrice * (item.step||1);
-              } else break;
-            }
+            const unit = computeUnitPrice(item, tempCredits);
+            while (remaining >= unit && (item.qty + 1) <= (item.max||999)) { item.qty += 1; remaining -= unit; }
           }
           setLines(newLines);
         };
 
-        // Submit via email (non‑binding request)
-        const mailto = () => {
-          const required = ["company","name","email","phone"];
-          const missing = required.filter(k => !lead[k]);
-          if (missing.length) {
-            alert("Please provide: " + missing.join(", "));
-            return;
-          }
-          const selected = lines.filter(l => l.qty > 0);
-          if (!selected.length) {
-            alert("Please add at least one placement to your plan.");
-            return;
-          }
-          const bodyLines = [];
-          bodyLines.push("NON‑BINDING REQUEST — Hour Detroit Media Plan");
-          bodyLines.push("");
-          bodyLines.push(`Company: ${lead.company}`);
-          bodyLines.push(`Contact: ${lead.name}`);
-          bodyLines.push(`Email: ${lead.email}`);
-          bodyLines.push(`Phone: ${lead.phone}`);
-          bodyLines.push("");
-          bodyLines.push("Selections:");
-          selected.forEach(l => {
-            const up = computeUnitPrice(l, commitmentCredits);
-            bodyLines.push(` - ${l.category} | ${l.name} — Qty ${l.qty} @ ${currency(up)} = ${currency(l.qty * up)}`);
-          });
-          bodyLines.push("");
-          bodyLines.push(`Subtotal: ${currency(totals.lineSubtotal)}`);
-          totals.discounts.forEach(d => bodyLines.push(`Discount: ${d.label} ${currency(d.amount)}`));
-          bodyLines.push(`Estimated Total: ${currency(totals.net)}`);
-          bodyLines.push("");
-          bodyLines.push("*This is a request for proposal and does not constitute a binding contract. Hour Detroit will confirm inventory, specs, and final pricing.");
-          const subject = encodeURIComponent(`Media Plan Request — ${lead.company}`);
-          const body = encodeURIComponent(bodyLines.join("\n"));
-          window.location.href = `mailto:advertising@hour-media.com?subject=${subject}&body=${body}`;
-        };
-
-        // --- Rendering ---
         const categories = Array.from(new Set(offerings.map(o => o.category)));
 
         return (
           <div className="min-h-screen bg-gray-50">
-            <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-200">
+            {/* Clean white header with logo */}
+            <header className="bg-white sticky top-0 z-10 border-b border-gray-200">
               <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-black text-white grid place-items-center font-semibold">HD</div>
+                <div className="flex items-center gap-4">
+                  <img src="logo.jpg" alt="Hour Detroit" className="h-8 w-auto" />
                   <div>
-                    <h1 className="text-xl font-bold">Hour Detroit — Media Plan Builder</h1>
-                    <p className="text-sm text-gray-500">Build a custom plan. Submit as a non‑binding request; our team will follow up.</p>
+                    <h1 className="text-xl font-bold tracking-wide">Media Plan Builder</h1>
+                    <p className="text-sm text-gray-600">Build a custom plan. Submit as a <b>non‑binding request</b>; our team will follow up.</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <input type="number" min={0} className="border rounded-xl px-3 py-2 w-40" placeholder="Target budget ($)" value={targetBudget || ""} onChange={(e)=>setTargetBudget(Number(e.target.value)||0)} />
-                  <button onClick={autoDistribute} className="px-3 py-2 rounded-xl bg-black text-white">Auto-build</button>
+                  <button onClick={autoDistribute} className="px-3 py-2 rounded-xl bg-gray-900 text-white">Auto-build</button>
                   <button onClick={()=>setLines(offerings.map(o=>({...o, qty:0})))} className="px-3 py-2 rounded-xl border">Clear</button>
                 </div>
               </div>
             </header>
 
             <main className="max-w-7xl mx-auto px-4 py-6 grid lg:grid-cols-3 gap-6 print:block">
-              {/* Catalog */}
               <section className="lg:col-span-2 bg-white rounded-2xl shadow p-4 print:shadow-none print:p-0">
-                <h2 className="text-lg font-semibold mb-3">Choose your placements</h2>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-semibold">Choose your placements</h2>
+                  <span className="chip px-2 py-1 rounded-lg text-xs">Brand accents use Hour red</span>
+                </div>
 
                 {categories.map(cat => {
                   const rows = offerings.filter(o => o.category === cat);
-                  const hasEventLevels = rows.some(r => r.eventGroup);
-                  const groups = {};
-                  rows.forEach(r => {
-                    const key = r.eventGroup || `__no_group__${r.id}`;
-                    if (!groups[key]) groups[key] = [];
-                    groups[key].push(r);
-                  });
-
+                  const isEventCat = cat.startsWith("Events — ");
                   return (
                     <div key={cat} className="mb-6">
                       <div className="flex items-center justify-between">
                         <h3 className="font-semibold text-gray-700">{cat}</h3>
-                        <div className="text-xs text-gray-500">Print tiers unlock via Commitment Credits. Event levels are single‑select.</div>
+                        <div className="text-xs text-gray-500">{isEventCat ? "Choose one option for this event." : "Print tiers unlock via Commitment Credits."}</div>
                       </div>
 
-                      {/* If event levels exist, render radio groups */}
-                      {hasEventLevels ? (
-                        <div className="mt-3 space-y-4">
-                          {Object.entries(groups).map(([key, opts]) => (
-                            key.startsWith("__no_group__") ? (
-                              // Add-ons (not exclusive)
-                              <div key={key} className="border rounded-xl p-3">
-                                {opts.map(l => (
-                                  <div key={l.id} className="flex items-start justify-between gap-3 py-1">
-                                    <div>
-                                      <div className="font-medium">{l.name} <span className="text-xs text-gray-500">({l.unitLabel})</span></div>
-                                      <div className="text-xs text-gray-500">{l.blurb}</div>
+                      {isEventCat ? (
+                        <div className="mt-3 border rounded-xl p-3 space-y-2">
+                          {Object.entries(eventOptions).filter(([g]) => cat.endsWith(g)).map(([group, opts]) => (
+                            <div key={group}>
+                              {opts.map(opt => {
+                                const selected = (lines.find(l => l.id === opt.id)?.qty || 0) > 0;
+                                return (
+                                  <label key={opt.id} className="flex items-start justify-between gap-3 cursor-pointer py-1">
+                                    <div className="flex items-start gap-2">
+                                      <input type="radio" name={group} checked={selected} onChange={()=>selectEventLevel(group, opt.id)} />
+                                      <div>
+                                        <div className="font-medium">{opt.name}</div>
+                                        <div className="text-xs text-gray-500">{opt.blurb}</div>
+                                      </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                      <div className="text-sm mr-2">{currency(computeUnitPrice(l, commitmentCredits))}</div>
-                                      <button className="px-2 py-1 border rounded-lg" onClick={()=>setQty(l.id, Math.max(0,(l.qty||0)-1))}>–</button>
-                                      <input type="number" className="w-16 border rounded-lg px-2 py-1 text-center" value={l.qty||0} min={0} max={l.max||99} step={l.step||1} onChange={(e)=>setQty(l.id, Math.max(0, Math.min(l.max||99, Number(e.target.value)||0)))} />
-                                      <button className="px-2 py-1 border rounded-lg" onClick={()=>setQty(l.id, Math.min((l.max||99),(l.qty||0)+1))}>+</button>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              // Exclusive level group
-                              <div key={key} className="border rounded-xl p-3">
-                                <div className="text-xs font-semibold text-gray-600 mb-2">{key}</div>
-                                <div className="space-y-2">
-                                  {opts.map(l => {
-                                    const price = computeUnitPrice(l, commitmentCredits);
-                                    const selected = (lines.find(x => x.id === l.id)?.qty || 0) > 0;
-                                    return (
-                                      <label key={l.id} className="flex items-start justify-between gap-3 cursor-pointer">
-                                        <div className="flex items-start gap-2">
-                                          <input type="radio" name={key} checked={selected} onChange={()=>selectEventLevel(l.eventGroup, l.id)} />
-                                          <div>
-                                            <div className="font-medium">{l.name} <span className="text-xs text-gray-500">({l.unitLabel})</span></div>
-                                            <div className="text-xs text-gray-500">{l.blurb}</div>
-                                          </div>
-                                        </div>
-                                        <div className="text-sm">{currency(price)}</div>
-                                      </label>
-                                    );
-                                  })}
-                                  {/* None option */}
-                                  <label className="flex items-center gap-2 mt-2 cursor-pointer">
-                                    <input type="radio" name={key} checked={opts.every(o => (lines.find(x=>x.id===o.id)?.qty||0)===0)} onChange={()=>selectEventLevel(opts[0].eventGroup, "__none__")} />
-                                    <span className="text-sm text-gray-600">None</span>
+                                    <div className="text-sm">{currency(opt.price)}</div>
                                   </label>
-                                </div>
-                              </div>
-                            )
+                                );
+                              })}
+                              <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                                <input type="radio" name={group} checked={opts.every(o => (lines.find(x=>x.id===o.id)?.qty||0)===0)} onChange={()=>selectEventLevel(group, "__none__")} />
+                                <span className="text-sm text-gray-600">None</span>
+                              </label>
+                            </div>
                           ))}
                         </div>
                       ) : (
-                        // Default tabular render
                         <div className="mt-2 overflow-hidden rounded-xl border">
                           <table className="w-full text-sm">
                             <thead className="bg-gray-100 text-left">
@@ -374,26 +319,20 @@
                 })}
               </section>
 
-              {/* Summary & Submit */}
               <aside className="bg-white rounded-2xl shadow p-4 h-fit sticky top-20 print:static print:shadow-none print:p-0">
                 <h2 className="text-lg font-semibold mb-3">Summary</h2>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between"><span>Commitment Credits</span><span className="font-medium">{commitmentCredits}</span></div>
                   <div className="flex justify-between"><span>Current Print Tier</span><span className="font-semibold">{currentPrintTier}</span></div>
                   <div className="flex justify-between"><span>Subtotal</span><span className="font-medium">{currency(totals.lineSubtotal)}</span></div>
-                  {totals.discounts.map(d => (
-                    <div key={d.code} className="flex justify-between text-emerald-700"><span>{d.label}</span><span>{currency(d.amount)}</span></div>
-                  ))}
+                  {totals.discounts.map(d => (<div key={d.code} className="flex justify-between text-emerald-700"><span>{d.label}</span><span>{currency(d.amount)}</span></div>))}
                   <div className="border-t pt-2 flex justify-between text-base">
-                    <span className="font-semibold">Estimated Total</span>
-                    <span className="font-bold">{currency(totals.net)}</span>
+                    <span className="font-semibold">Estimated Total</span><span className="font-bold">{currency(totals.net)}</span>
                   </div>
                 </div>
-
                 <div className="mt-4 p-3 rounded-xl bg-gray-50 text-[11px] text-gray-600">
                   *This tool generates a <b>non‑binding request</b>. Hour Detroit will confirm inventory, specs, dates, and final pricing.
                 </div>
-
                 <h3 className="mt-6 font-semibold">Contact</h3>
                 <div className="mt-2 grid grid-cols-1 gap-2 text-sm">
                   <input className="border rounded-lg px-3 py-2" placeholder="Company" value={lead.company} onChange={(e)=>setLead({...lead, company: e.target.value})} />
@@ -401,16 +340,15 @@
                   <input className="border rounded-lg px-3 py-2" placeholder="Email" value={lead.email} onChange={(e)=>setLead({...lead, email: e.target.value})} />
                   <input className="border rounded-lg px-3 py-2" placeholder="Phone" value={lead.phone} onChange={(e)=>setLead({...lead, phone: e.target.value})} />
                 </div>
-
                 <div className="mt-4 grid grid-cols-1 gap-2">
-                  <button onClick={mailto} className="px-3 py-2 rounded-xl bg-black text-white">Submit Request</button>
+                  <button onClick={mailto} className="px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white">Submit Request</button>
                   <button onClick={()=>window.print()} className="px-3 py-2 rounded-xl border">Print / Save PDF</button>
                 </div>
               </aside>
             </main>
 
             <footer className="max-w-7xl mx-auto px-4 pb-10 text-xs text-gray-500">
-              © {new Date().getFullYear()} Hour Detroit (Demo planner). All pricing/specs are illustrative. Replace with official rate card before publishing.
+              © {new Date().getFullYear()} Hour Detroit • Prototype. Pricing/specs subject to confirmation.
             </footer>
           </div>
         );
